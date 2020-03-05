@@ -1,75 +1,91 @@
-# NBA Predicter
+Conda Buildpack
+===============
 
-This project contains a data pipeline which collects NBA statistics and uses box score data to predict whether a given team will win or lose a given game. This project also compares various machine learning classifier algorithms to demonstrate which are most accurate for the prediction process.
+This is a [Heroku Buildpack](https://devcenter.heroku.com/articles/buildpacks) for [Conda](http://conda.pydata.org/), the Python distribution for scientific computing by Continuum Analytics.
 
+This buildpack enables the installation of binary packages through the
+open source [conda](http://conda.pydata.org/) application.  Conda is
+recognized as being core to Continuum's Anaconda Scientific Python distro
+but it's also at the heart of the lighter weight
+[Miniconda](http://conda.pydata.org/miniconda.html) distro which we use
+here to install _only_ the binary packages we need for our apps deployed
+on Heroku.
 
-### Introduction
+To control what binary packages are installed by conda, supply a
+`conda-requirements.txt` file (which can be created by capturing the output
+of `conda list -e` for your working conda environment).
+Like when using the standard buildpack for python from Heroku, you can also
+still supply a `requirements.txt` file for [pip](https://github.com/pypa/pip)
+to process.  In this way, you can install binary packages via conda for
+everything you can and still use pip for anything you can't.
+Usage
+-----
 
-The long-term goal of this project is to use all relevant available data and tune the best performing machine learning algorithms to identify an optimal method for predicting the outcome of future basketball games.
+Example usage:
 
-Current version of this package uses the box score data of a specific team (and not their opponent) to predict the win/loss outcome for a game which has already been played.  Of course, the box score data for a given game would not be available to predict future games.  The purpose of this step of modeling is to do the following:
+```console
+$ ls
+Procfile  conda-requirements.txt  numbercrunch.py
 
-- identify the best candidate features for future methods,
-- identify the best potential machine learning algorithms for outcome prediction,
-- offer a comprehensive data pipeline which is easy to use, modify, and update.
+$ heroku create --buildpack https://github.com/kennethreitz/conda-buildpack.git
 
-### Data Visualization and Accuracy Results
-
-The following heatmap and bar graph help us identify candidate features (NBA stats) to use in the classification phase of the pipeline.  For instance, the bar graph shows that game outcome has a high positive correlation with `made_field_goals` and `field_goal_percentage`, and a high negative correlation with `personal_fouls`, suggesting that these features should be used in modeling.  (See [NBA Predictor Jupyter Notebook](https://github.com/Will-Wright/NBA-predicter/blob/master/NBA%20Predicter.ipynb) to generate these plots.)
-
-<p align="center">
- <img src="./images/corr_heatmap.png">
- </p>
- <p align="center">
-</p>
-
-<p align="center">
- <img src="./images/corr_bar_graph.png">
- </p>
- <p align="center">
-</p>
-
-
-Using a few of these features, we see that the following algorithms perform with the accuracies indicated.
-
-<p align="center">
- <img src="./images/classifier_accuracy.png">
- </p>
- <p align="center">
-</p>
-
-
-### Contents
-
-The [NBA Predictor Jupyter Notebook](https://github.com/Will-Wright/NBA-predicter/blob/master/NBA%20Predicter.ipynb) demonstates how to use all of the methods in this project.  Use this notebook to run the full pipeline and generate the plot above.
-
-The data pipeline is split into two classes which can be found in the `src` folder.  
-
- - `DataProcessor` handles acquisition, integration, and processing.  
- - `DataClassifier` handles modeling (selecting features, params, classifiers), classifying, evaluation, and plotting results.  
-
-The `data_raw` and `data_processed` folders contain previously scraped data for NBA seasons 2000-2001 to partway through 2019-2020.  To update data, just call `DataProcessor.update_and_process_all_data()`.
-
-### Prerequisites
-
-This project requires Python 3 and the following packages:
-
+$ git push heroku master
+...
+-----> Fetching custom git buildpack... done
+-----> Python/Miniconda app detected
+-----> Preparing Python/Miniconda Environment (3.5.2)
+       installing: python-2.7.6-2 ...
+-----> Installing dependencies using Conda
+      Fetching packages ...
+        bitarray-0.8.1 100% |###############################| Time: 0:00:00  17.53 MB/s00  B/s
+        dateutil-2.1-p 100% |###############################| Time: 0:00:00   2.29 MB/s00  B/s
+        h5py-2.3.0-np1 100% |###############################| Time: 0:00:00  13.49 MB/s00  B/s
+        hdf5-1.8.9-1.t 100% |###############################| Time: 0:00:00  12.20 MB/s00  B/s
+        libpng-1.5.13- 100% |###############################| Time: 0:00:00   8.05 MB/s00  B/s
+        llvm-3.3-0.tar 100% |###############################| Time: 0:00:03  10.65 MB/s00  B/s
+        llvmpy-0.12.6- 100% |###############################| Time: 0:00:00   9.65 MB/s00  B/s
+        nltk-2.0.4-np1 100% |###############################| Time: 0:00:00   6.26 MB/s00  B/s
+        numba-0.13.2-n 100% |###############################| Time: 0:00:00  11.54 MB/s00  B/s
+        numexpr-2.3.1- 100% |###############################| Time: 0:00:00   6.80 MB/s00  B/s
+        numpy-1.8.1-py 100% |###############################| Time: 0:00:00   8.82 MB/s00  B/s
+        pandas-0.14.0- 100% |###############################| Time: 0:00:00   9.90 MB/s00  B/s
+        pyside-1.2.1-p 100% |###############################| Time: 0:00:00   6.00 MB/s00  B/s
+        pytables-3.1.1 100% |###############################| Time: 0:00:00   9.24 MB/s00  B/s
+        pytz-2014.3-py 100% |###############################| Time: 0:00:00   1.54 MB/s00  B/s
+        qt-4.8.5-0.tar 100% |###############################| Time: 0:00:01  17.36 MB/s00  B/s
+        reportlab-3.1. 100% |###############################| Time: 0:00:00   4.87 MB/s00  B/s
+        scikit-image-0 100% |###############################| Time: 0:00:01  12.81 MB/s00  B/s
+        scikit-learn-0 100% |###############################| Time: 0:00:00   8.70 MB/s00  B/s
+        scipy-0.14.0-n 100% |###############################| Time: 0:00:02  15.16 MB/s00  B/s
+        shiboken-1.2.1 100% |###############################| Time: 0:00:00   3.33 MB/s00  B/s
+        six-1.6.1-py27 100% |###############################| Time: 0:00:00  12.54 MB/s00  B/s
 ```
-sklearn
-pandas
-seaborn
-basketball_reference_web_scraper
+
+You can also add it to upcoming builds of an existing application:
+
+```console
+$ heroku config:add BUILDPACK_URL=https://github.com/kennethreitz/conda-buildpack.git
 ```
 
-You can find the web scraper at https://github.com/jaebradley/basketball_reference_web_scraper.
 
+Simple test:
 
-### Running Tests
+```python
+>>> bitarray.test()
+bitarray is installed in: /app/.heroku/anaconda/lib/python2.7/site-packages/bitarray
+bitarray version: 0.8.0
+2.7.3 |Continuum Analytics, Inc.| (default, Feb 25 2013, 18:46:31)
+[GCC 4.1.2 20080704 (Red Hat 4.1.2-52)]
+.................................................................................................................................
+----------------------------------------------------------------------
+Ran 129 tests in 1.375s
 
-To run the entire data pipeline on your local machine, just follow the [NBA Predictor Jupyter Notebook](https://github.com/Will-Wright/NBA-predicter/blob/master/NBA%20Predicter.ipynb).
+OK
+<unittest.runner.TextTestResult run=129 errors=0 failures=0>
+```
 
+## Fair Warning
 
-## Future work
+Heroku limits the final application footprint (slug) size to 300MB. Start small. 
 
-- Add new data to dataset: advanced statistics, number games on the road, etc.
-- Use [WEKA machine learning models](https://www.cs.waikato.ac.nz/ml/weka/)
+ॐ
